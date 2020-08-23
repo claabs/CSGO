@@ -3,15 +3,13 @@
 ###########################################################
 FROM cm2network/steamcmd:root
 
-LABEL maintainer="walentinlamonos@gmail.com"
-
 ENV STEAMAPPID 740
 ENV STEAMAPP csgo
 ENV STEAMAPPDIR "${HOMEDIR}/${STEAMAPP}-dedicated"
-ENV DLURL https://raw.githubusercontent.com/CM2Walki/CSGO
+ENV DLURL https://raw.githubusercontent.com/claabs/CSGO
 
-# Create autoupdate config
-# Add entry script & ESL config
+
+# Add entry script
 # Remove packages and tidy up
 RUN set -x \
 	&& dpkg --add-architecture i386 \
@@ -23,15 +21,6 @@ RUN set -x \
 	&& wget "${DLURL}/master/etc/entry.sh" -O "${HOMEDIR}/entry.sh" \
 	&& chmod 755 "${HOMEDIR}/entry.sh" "${STEAMAPPDIR}/${STEAMAPP}" \
 	&& chown "${USER}:${USER}" "${HOMEDIR}/entry.sh" "${STEAMAPPDIR}/${STEAMAPP}" \
-	&& { \
-		echo '@ShutdownOnFailedCommand 1'; \
-		echo '@NoPromptForPassword 1'; \
-		echo 'login anonymous'; \
-		echo 'force_install_dir "${STEAMAPPDIR}"'; \
-		echo 'app_update "${STEAMAPPID}"'; \
-		echo 'quit'; \
-	   } > "${STEAMAPPDIR}/${STEAMAPP}_update.txt" \
-	&& wget -qO- "${DLURL}/master/etc/cfg.tar.gz" | tar xvzf - -C "${STEAMAPPDIR}/${STEAMAPP}" \
 	&& chown -R "${USER}:${USER}" "${STEAMAPPDIR}" \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -47,7 +36,7 @@ ENV SRCDS_FPSMAX=300 \
 	SRCDS_RCONPW="changeme" \
 	SRCDS_PW="changeme" \
 	SRCDS_STARTMAP="de_dust2" \
-	SRCDS_REGION=3 \
+	SRCDS_REGION=0 \
 	SRCDS_MAPGROUP="mg_active" \
 	SRCDS_GAMETYPE=0 \
 	SRCDS_GAMEMODE=1 \
