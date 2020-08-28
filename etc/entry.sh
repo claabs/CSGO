@@ -27,16 +27,6 @@ if [ ! -f "${STEAMAPPDIR}/${STEAMAPP}/cfg/server.cfg" ]; then
 	sed -i -e 's/{{SERVER_HOSTNAME}}/'"${SRCDS_HOSTNAME}"'/g' "${STEAMAPPDIR}/${STEAMAPP}/cfg/server.cfg"
 fi
 
-# Create autoupdate config
-{ \
-	echo '@ShutdownOnFailedCommand 1'; \
-	echo '@NoPromptForPassword 1'; \
-	echo 'login anonymous'; \
-	echo 'force_install_dir "${STEAMAPPDIR}"'; \
-	echo 'app_update "${STEAMAPPID}"'; \
-	echo 'quit'; \
-} > "${STEAMAPPDIR}/${STEAMAPP}_update.txt" \
-
 # Believe it or not, if you don't do this srcds_run shits itself
 cd ${STEAMAPPDIR}
 
@@ -52,14 +42,14 @@ bash "${STEAMAPPDIR}/srcds_run" -game "${STEAMAPP}" -console -autoupdate \
 			-maxplayers_override "${SRCDS_MAXPLAYERS}" \
 			+game_type "${SRCDS_GAMETYPE}" \
 			+game_mode "${SRCDS_GAMEMODE}" \
-			# +mapgroup "${SRCDS_MAPGROUP}" \
 			+map "${SRCDS_STARTMAP}" \
 			+sv_setsteamaccount "${SRCDS_TOKEN}" \
 			+rcon_password "${SRCDS_RCONPW}" \
 			+sv_password "${SRCDS_PW}" \
 			+sv_region "${SRCDS_REGION}" \
+			-authkey "${SRCDS_WORKSHOP_AUTHKEY}"
+			# +mapgroup "${SRCDS_MAPGROUP}" \
 			# +net_public_adr "${SRCDS_NET_PUBLIC_ADDRESS}" \
 			# -ip "${SRCDS_IP}" \
 			# +host_workshop_collection "${SRCDS_HOST_WORKSHOP_COLLECTION}" \
 			# +workshop_start_map "${SRCDS_WORKSHOP_START_MAP}" \
-			-authkey "${SRCDS_WORKSHOP_AUTHKEY}"
