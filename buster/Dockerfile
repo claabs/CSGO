@@ -12,16 +12,22 @@ ENV DLURL https://raw.githubusercontent.com/claabs/CSGO
 # Add entry script
 # Remove packages and tidy up
 RUN set -x \
-	&& dpkg --add-architecture i386 \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends --no-install-suggests \
 		wget=1.20.1-1.1 \
 		ca-certificates=20190110 \
-	&& mkdir -p "${STEAMAPPDIR}/${STEAMAPP}" \
+	&& mkdir -p "${STEAMAPPDIR}" \
 	&& wget "${DLURL}/master/etc/entry.sh" -O "${HOMEDIR}/entry.sh" \
-	&& chmod 755 "${HOMEDIR}/entry.sh" "${STEAMAPPDIR}/${STEAMAPP}" \
-	&& chown "${USER}:${USER}" "${HOMEDIR}/entry.sh" "${STEAMAPPDIR}/${STEAMAPP}" \
-	&& chown -R "${USER}:${USER}" "${STEAMAPPDIR}" \
+	&& { \
+		echo '@ShutdownOnFailedCommand 1'; \
+		echo '@NoPromptForPassword 1'; \
+		echo 'login anonymous'; \
+		echo 'force_install_dir "${STEAMAPPDIR}"'; \
+		echo 'app_update "${STEAMAPPID}"'; \
+		echo 'quit'; \
+	   } > "${HOMEDIR}/${STEAMAPP}_update.txt" \
+	&& chmod -R 777 "${HOMEDIR}/entry.sh" "${STEAMAPPDIR}" "${HOMEDIR}/${STEAMAPP}_update.txt" \
+	&& chown -R "${USER}:${USER}" "${HOMEDIR}/entry.sh" "${STEAMAPPDIR}" "${HOMEDIR}/${STEAMAPP}_update.txt" \	
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV SRCDS_FPSMAX=300 \
@@ -47,9 +53,13 @@ ENV SRCDS_FPSMAX=300 \
 
 USER ${USER}
 
+VOLUME ${STEAMAPPDIR}
+
 WORKDIR ${HOMEDIR}
 
 CMD ["bash", "entry.sh"]
 
 # Expose ports
-EXPOSE 27015/tcp 27015/udp 27020/udp
+EXPOSE 27015/tcp \
+	27015/udp \
+	27020/udp
